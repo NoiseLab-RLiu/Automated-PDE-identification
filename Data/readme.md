@@ -2,4 +2,4 @@ Synthetic data: the 3 files starting with "highfreq".   Note: "dis" is for dispe
 
 Burgers_u1D.mat is for the 1D Burgers equation identification task.
 
-Real data: the file "Xsus.mat" is too large (434.6MB) to be uploaded on Github. Please contact the author Ruixian Liu (rul188@ucsd.edu) for email sending if required.
+Real data: the file "Xsus.mat" is too large (434.6MB) to be uploaded on Github. It is generated from the codes available at: https://codeocean.com/capsule/6788699/tree/v1
