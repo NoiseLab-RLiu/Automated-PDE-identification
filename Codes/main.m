@@ -18,11 +18,13 @@ df = freq_src(2)-freq_src(1); % assume multi-frequencies
 source_x=[46,55];
 source_y=[46,55];
 %% Vibrating plate data
-load('Xsus.mat')
-get_VP_Params
+% load('Xsus.mat')
+% get_VP_Params
 %var_gauss=1e-4;
 %add_noise
 % the region that should be dropped due to the source
+load('VP_Uf.mat')
+load('VP_U.mat')
 source_x=[];
 source_y=[];
 freq_src = freq_src(21:5:71);
@@ -32,3 +34,7 @@ classic_speed_circwave
 WaveEq_LoopTheta
 Helmholtz_LoopTheta
 
+%% Burgers Eq.
+load('Burgers_u1D.mat')
+Burgers_identi_1D
+ 
