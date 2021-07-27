@@ -1,6 +1,5 @@
 %% Parameters already defined in GenWave_analy.m
-%[~,~,Mused] = size(U(:,:,31:130));% use for vibrate plate
-[~,~,Mused] = size(U(:,:,:));% use for synthetic dataset
+[~,~,Mused] = size(Uf);
 Fmax = Mused-1;%Do not consider DC component
 KM = 1000; %zero padding, make dk smaller
 NN = Fmax;
@@ -11,10 +10,12 @@ for nn = 1:Fmax
     kk_save(:,:,nn) = kk; 
 end
 
+
+
 sf_vec = [];
 for f=1:Fmax %1:Fmax+1
     s_vec = [];
-    for s=0:KM-1
+    for s=0:KM/2-1
         summ = 0;
         for sx=0:s
             tmp = abs(kk_save(sx+1,round(sqrt(s^2-sx^2))+1,f));%+kk_save(sx+1,round(sqrt(s^2-sx^2))+1,Fmax+1-f));
@@ -25,21 +26,30 @@ for f=1:Fmax %1:Fmax+1
     sf_vec=[sf_vec,s_vec'];
 end
 
+kk_save_sum = zeros(KM,KM);
+for i=1:10
+    kk_save_sum = kk_save_sum+fftshift(kk_save(:,:,i));
+end
 
-figure
-imagesc((sf_vec))
-axis square
-xlabel('Freq')
-ylabel('Wavenumber')
-
+sf_vec = [];
+for f=1:Fmax %1:Fmax+1
+    s_vec = [];
+    for s=0:KM-1
+        summ = 0;
+        for sx=0:s
+            tmp = abs(fftshift(kk_save(sx+1,round(sqrt(s^2-sx^2))+1,f)));%+kk_save(sx+1,round(sqrt(s^2-sx^2))+1,Fmax+1-f));
+            summ = summ+tmp;
+        end
+        s_vec = [s_vec,summ];
+    end
+    sf_vec=[sf_vec,s_vec'];
+end
 
 radius=[];
 for f=1:length(freq_src)
-    [~,kind] = max(sf_vec(1:KM/2+1,freq_src(f)/df));%sf_vec(1:500,f)
+    [~,kind] = max(sf_vec(1:KM/2,freq_src(f)/df));%sf_vec(1:500,f)
     radius = [radius,kind-1];
 end
-
-
 
 speeds = [];
 for i=1:length(freq_src)
@@ -55,4 +65,3 @@ ylabel('Phase speed (m/s)')
 title('c recovered by wavenumber extraction method')
 ax = gca;
 ax.FontSize = 14; 
-

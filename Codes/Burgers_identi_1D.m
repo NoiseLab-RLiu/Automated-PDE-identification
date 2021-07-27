@@ -1,5 +1,7 @@
 %%
-Burgers_u_RK4 = Burgers_u1D{1};
+load('Burgers_u1D.mat')
+%dataset_index = 1;
+Burgers_u_RK4 = Burgers_u1D{dataset_index}; % \nu=0.025,0.05,0.1
 U=real(Burgers_u_RK4);
 % dt=t(2)-t(1);
 % dx=x(2)-x(1);
@@ -8,33 +10,33 @@ U=real(Burgers_u_RK4);
 num_used_bin = 1;
 num_dict_cols = 7;
 
-ERRT_beq_sp = zeros(num_dict_cols+1,num_used_bin); %Error(T), "+1" is for T=0 sparsity
-PHI_beq = zeros(num_dict_cols+1,num_used_bin); %Error(T), "+1" is for T=0 sparsity
-X_beq = zeros(num_dict_cols,num_used_bin);
+ERRT_weq_sp = zeros(num_dict_cols+1,num_used_bin); %Error(T), "+1" is for T=0 sparsity
+PHI_weq = zeros(num_dict_cols+1,num_used_bin); %Error(T), "+1" is for T=0 sparsity
+X_weq = zeros(num_dict_cols,num_used_bin);
 lambda = 1e-0;
 
 
-
 freq_num=1;
+
 %%
 LHS_res_freq = cell(freq_num,1);
 LHS_err_freq = zeros(num_dict_cols+1,freq_num);
 CorrectLHS_freq = zeros(freq_num,1);
 method = 'FD'; % method used to calculate numeriacl derivative, 'FD' (finite diff) or 'SP' (spectral)
-tic
 
 Uused = U;
 Mused = M;
 source_x=[];
 index=1;
-%Uused = Uused/10000;
 
-% For PS 
-dropx=fix(N_x*0.2);
-dropt=fix(Mused*0.2);
-% For FD
-dropx=1;
-dropt=1;
+% drop indices
+if(strcmp(method,'SP'))
+    dropx=fix(N_x*0.2);
+    dropt=fix(Mused*0.2);
+else
+    dropx=1;
+    dropt=1;
+end
 
 
 % space derivatives
@@ -43,10 +45,8 @@ Uxx=zeros(N_x,Mused);
 
 for k = 1:Mused
     Utmp=Uused(:,k);
-    for i = 1:Mused
-        Ux(:,k)=numder(Utmp, dx, 1,method);
-        Uxx(:,k)=numder(Utmp, dx, 2,method);
-    end
+    Ux(:,k)=numder(Utmp, dx, 1,method);
+    Uxx(:,k)=numder(Utmp, dx, 2,method);
 end
 
 % time derivatives
@@ -81,7 +81,6 @@ for i=1:size(Theta_en,2)
     Theta_en(:,i) = Theta_en(:,i)/norm(Theta_en(:,i));
 end
 
-
 PHI_L = zeros(size(Theta_en,2),size(Theta_en,2));
 LHS_res = zeros(size(Theta_en,2)-1,size(Theta_en,2));% OMP result when each atom in Theta_e treated as LHS
 LHS_err = zeros(size(Theta_en,2),1); % error for OMP-residual of each atom in Theta_e treated as LHS
@@ -93,12 +92,10 @@ for L=1:size(Theta_en,2)
     CVERR = CrossValid5(Theta,lhs);
     CV_err = CVERR(:,end);
     [PHI_L(:,L),minind] = getPhi(CV_err,lambda); 
-    %if(minind~=1)
-        [LHS_res(:,L),LHS_err(L)] = OMP_N(Theta,lhs,minind-1);
-%         else
-%             LHS_res(:,L) = zeros(size(Theta_en,2)-1,1);
-%             LHS_err(L) = Inf;
-%         end
+
+    [LHS_res(:,L),LHS_err(L)] = Thresholding(Theta,lhs,minind-1);
+    LHS_err(L) = LHS_err(L)/norm([1;LHS_res(:,L)],2);
+
     MININD(L) = minind;
 end
 [a,b]=min(LHS_err);
@@ -107,18 +104,4 @@ Theta_correct(:,b) = [];
 LHS_res_freq{index} = LHS_res;
 LHS_err_freq(:,index) = LHS_err;
 CorrectLHS_freq(index) = MININD(b)-1;
-[X_beq(:,index),err] = OMP_N(Theta_correct,Theta_e(:,b),MININD(b)-1);
-
-toc
-
-figure
-plot(log10(LHS_err))
-figure
-plot(log10(PHI_L(:,2)))
-
-corrmat=Theta_en'*Theta_en;
-figure
-imagesc(abs(corrmat))
-axis square
-colorbar
-
+[X_weq(:,index),err] = Thresholding(Theta_correct,Theta_e(:,b),MININD(b)-1);

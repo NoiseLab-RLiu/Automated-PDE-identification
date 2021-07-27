@@ -1,11 +1,13 @@
+%% Automated Partial Differential Equation Identification
+%% Ruixian Liu, 07/26/2021
+%% Synthetic waves
 close all
 clear all
-%% Synthetic data
-% load('highfreq_non_dis_non_att.mat')
-% dispersive = 0;
-load('highfreq_dis_non_att.mat')
-dispersive = 1;
-% load('highfreq_non_dis_att.mat')
+load('highfreq_non_dis_non_att.mat') % non-dispersive non-attenuated waves
+dispersive = 0;
+% load('highfreq_dis_non_att.mat') % dispersive non-atteunated waves
+% dispersive = 1;
+% load('highfreq_non_dis_att.mat')  % non-dispersive attenuated waves
 % dispersive = 0;
 
 Mused = 100;
@@ -17,24 +19,27 @@ df = freq_src(2)-freq_src(1); % assume multi-frequencies
 % the region that should be dropped due to the source
 source_x=[46,55];
 source_y=[46,55];
+
+WaveEq_LoopTheta
+Helmholtz_LoopTheta % work for non-attenuated waves
 %% Vibrating plate data
-% load('Xsus.mat')
-% get_VP_Params
-%var_gauss=1e-4;
-%add_noise
+close all
+clear all
+load('Xsus.mat')
+get_VP_Params
+
 % the region that should be dropped due to the source
-load('VP_Uf.mat')
-load('VP_U.mat')
 source_x=[];
 source_y=[];
 freq_src = freq_src(21:5:71);
+%freq_src = freq_src(31:15:61);
 dispersive = 1;
-%% Classic wavnumber extraction method; PDE recovery in time and freq domain
-classic_speed_circwave
-WaveEq_LoopTheta
-Helmholtz_LoopTheta
 
-%% Burgers Eq.
-load('Burgers_u1D.mat')
+classic_speed_circwave % classic wavenumber extraction
+WaveEq_LoopTheta
+
+%% Burgers Equations identification
+close all
+clear all
+dataset_index = 1; % choose the burgers equation dataset, ranged from 1 to 3
 Burgers_identi_1D
- 

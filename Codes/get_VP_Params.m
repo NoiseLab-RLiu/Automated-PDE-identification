@@ -14,6 +14,13 @@ for i=1:N_x
     end
 end
 
+% figure
+% for i=1:300
+%     imagesc(U(:,:,i))
+%     axis square
+%     pause(.1)
+% end
+
 maxval = max(max(max(U)));
 minval = min(min(min(U)));
 %% show frames

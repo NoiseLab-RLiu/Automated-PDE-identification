@@ -8,6 +8,7 @@ length = size(y,1)/5;
 randseed = 1;
 rng(randseed)
 r = randperm(size(y,1));%randperm
+%r=1:size(y,1);
 length = size(r,2)/5; %% PAY SPECIAL NOTICE HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 dictfold1=dict(r(0*length+1:1*length),:); %Expriments suggests that do not use random selection here. 
 dictfold2=dict(r(1*length+1:2*length),:);
@@ -66,7 +67,8 @@ CVERR=zeros(size(Xs,2)+1,6);
 for fold=1:5
 error=[];
 for i=1:size(Xs,2)
-    [x,error_abd] = OMP_N(dicv{fold},ycv{fold},i); % train
+    %[x,error_abd] = OMP_N(dicv{fold},ycv{fold},i); % train
+    [x,error_abd] = Thresholding(dicv{fold},ycv{fold},i); % train
     error=[error,norm(yfold{fold}-dictfold{fold}*x)^2] % test error
 end
 
