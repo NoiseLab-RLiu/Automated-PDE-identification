@@ -25,8 +25,9 @@ Helmholtz_LoopTheta % work for non-attenuated waves
 %% Vibrating plate data
 close all
 clear all
-load('Xsus.mat')
-get_VP_Params
+%load('Xsus.mat')
+load('VP_Uf.mat')
+%get_VP_Params
 
 % the region that should be dropped due to the source
 source_x=[];
