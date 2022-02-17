@@ -1,1 +1,1 @@
-# Automate-PDE-identification
+# Automated-PDE-identification
